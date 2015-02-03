@@ -2,8 +2,8 @@
 # For advanced usage see the AdvancedExampleController.
 class SimpleExampleController < ApplicationController
   # This will force CAS authentication before the user
-  # is allowed to access any action in this controller. 
-  before_filter CASClient::Frameworks::Rails::Filter
+  # is allowed to access any action in this controller.
+  before_filter :sso_filter
 
   def index
     @username = session[:cas_user]

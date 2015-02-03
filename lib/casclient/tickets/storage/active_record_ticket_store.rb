@@ -1,3 +1,5 @@
+
+
 module CASClient
   module Tickets
     module Storage
@@ -9,7 +11,7 @@ module CASClient
       # Proxy Granting Tickets and their IOUs are stored in the cas_pgtious table.
       #
       # This ticket store takes the following config parameters
-      # :pgtious_table_name - the name of the table 
+      # :pgtious_table_name - the name of the table
       class ActiveRecordTicketStore < AbstractTicketStore
 
         def initialize(config={})
@@ -17,7 +19,11 @@ module CASClient
           if config[:pgtious_table_name]
             CasPgtiou.set_table_name = config[:pgtious_table_name]
           end
-          ActiveRecord::SessionStore.session_class = ServiceTicketAwareSession
+          if Rails::VERSION::MAJOR > 3
+            ActionDispatch::Session::ActiveRecordStore.session_class = ServiceTicketAwareSession # for rails4
+          else
+            ActiveRecord::SessionStore.session_class = ServiceTicketAwareSession # for rails2, rails 3
+          end
         end
 
         def store_service_session_lookup(st, controller)
@@ -40,6 +46,8 @@ module CASClient
           #no cleanup needed for this ticket store
           #we still raise the exception for API compliance
           raise CASException, "No service_ticket specified." unless st
+          # clean old sessions
+          ActiveRecord::SessionStore::Session.delete_all(["updated_at < ?", Time.now - 3.days])
         end
 
         def save_pgt_iou(pgt_iou, pgt)
@@ -70,8 +78,9 @@ module CASClient
         before_save :save_service_ticket
 
         def save_service_ticket
-          if data[:service_ticket]
-            self.service_ticket = data[:service_ticket]
+          st = data[:service_ticket] || data['service_ticket']
+          if st
+            self.service_ticket = st
           end
         end
       end

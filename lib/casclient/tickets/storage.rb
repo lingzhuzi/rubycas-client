@@ -29,7 +29,11 @@ module CASClient
           session_id = read_service_session_lookup(st)
           unless session_id.nil?
             # This feels a bit hackish, but there isn't really a better way to go about it that I am aware of yet
-            session = ActiveRecord::SessionStore.session_class.find(:first, :conditions => {:session_id => session_id})
+            if Rails::VERSION::MAJOR > 2
+              session = ActiveRecord::SessionStore::Session.where(:session_id => session_id).first
+            else
+              session = ActiveRecord::SessionStore::Session.find(:first, :conditions => {:session_id => session_id})
+            end
           else
             log.warn("Couldn't destroy session service ticket #{st} because no corresponding session id could be found.")
           end
@@ -106,7 +110,7 @@ module CASClient
 
         # Returns the local Rails session ID corresponding to the given
         # ServiceTicket. This is done by reading the contents of the
-        # cas_sess.<session ticket> file created in a prior call to 
+        # cas_sess.<session ticket> file created in a prior call to
         # #store_service_session_lookup.
         def read_service_session_lookup(st)
           raise CASException, "No service_ticket specified." if st.nil?

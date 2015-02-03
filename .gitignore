@@ -1,3 +1,4 @@
+.tags
 *.swp
 *.gem
 
@@ -26,5 +27,5 @@ pkg
 tmp
 
 .project
-
+.DS_Store
 Gemfile.lock

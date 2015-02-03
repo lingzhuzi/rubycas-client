@@ -4,14 +4,14 @@ class AdvancedExampleController < ApplicationController
   # This will allow the user to view the index page without authentication
   # but will process CAS authentication data if the user already
   # has an SSO session open.
-  before_filter CASClient::Frameworks::Rails::GatewayFilter, :only => :index
+  before_filter :gateway_filter, :only => :index
 
-  # This requires the user to be authenticated for viewing allother pages.
-  before_filter CASClient::Frameworks::Rails::Filter, :except => :index
+  # This requires the user to be authenticated for viewing all other pages.
+  skip_before_filter :sso_filter, :only => :index
 
   def index
     @username = session[:cas_user]
-    
+
     @login_url = CASClient::Frameworks::Rails::Filter.login_url(self)
   end
 

@@ -25,18 +25,18 @@ module CASClient
       @default_formatter = Formatter.new
       super
     end
-  
+
     def format_message(severity, datetime, progrname, msg)
       (@formatter || @default_formatter).call(severity, datetime, progname, msg)
     end
-    
+
     def break
       self << $/
     end
-    
+
     class Formatter < ::Logger::Formatter
       Format = "[%s#%d] %5s -- %s: %s\n"
-      
+
       def call(severity, time, progname, msg)
         Format % [format_datetime(time), $$, severity, progname, msg2str(msg)]
       end
@@ -64,6 +64,7 @@ module CASClient
 end
 
 require 'casclient/tickets'
+require 'casclient/request'
 require 'casclient/responses'
 require 'casclient/client'
 require 'casclient/tickets/storage'

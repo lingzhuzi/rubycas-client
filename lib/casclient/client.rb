@@ -83,7 +83,7 @@ module CASClient
     #                   parameter differently (or not at all).
     # follow_url:: This satisfies section 2.3.1 of the CAS protocol spec.
     #              See http://www.ja-sig.org/products/cas/overview/protocol
-    def logout_url(destination_url = nil, follow_url = nil, service_url = nil)
+    def logout_url(service_url = nil, follow_url = nil, destination_url = nil)
       url = @logout_url || (cas_base_url + "/logout")
       uri = URI.parse(url)
       service_url = (service_url if service_url) || @service_url
